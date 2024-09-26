@@ -5,9 +5,15 @@ use axum::{
     extract::{Query, State},
     http::StatusCode,
     response::{IntoResponse, Redirect},
+    Json,
 };
-use rspotify::{prelude::OAuthClient as _, scopes, AuthCodePkceSpotify, Credentials, OAuth};
-use serde::Deserialize;
+use base64::{engine::general_purpose::URL_SAFE, prelude::*};
+use rspotify::{
+    model::{AdditionalType, PlayableItem},
+    prelude::{BaseClient, OAuthClient},
+    scopes, AuthCodePkceSpotify, Credentials, OAuth, Token,
+};
+use serde::{Deserialize, Serialize};
 use shuttle_runtime::tokio::sync::RwLock;
 
 use crate::templates::IndexTemplate;
@@ -86,12 +92,80 @@ pub async fn get_spotify_callback(
         .await
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
-    let me = pkce
-        .me()
+    let token = {
+        let token = pkce.get_token();
+        let token = token
+            .lock()
+            .await
+            .map_err(|_e| (StatusCode::INTERNAL_SERVER_ERROR, "".into()))?;
+        let token = token
+            .clone()
+            .context("Token is not found.")
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+        token
+    };
+
+    let token =
+        token2text(&token).map_err(|_e| (StatusCode::INTERNAL_SERVER_ERROR, "".to_string()))?;
+
+    Ok(Redirect::to(&format!("/?token={token}")).into_response())
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NpResponse {
+    pub track_name: String,
+    pub track_url: String,
+    pub artist_names: Vec<String>,
+    pub album_name: String,
+}
+
+#[derive(Deserialize)]
+pub struct GetNpRequest {
+    pub token: String,
+}
+
+pub async fn get_np(
+    Query(query): Query<GetNpRequest>,
+) -> Result<Json<Option<NpResponse>>, (StatusCode, String)> {
+    let token = text2token(&query.token).map_err(|e| (StatusCode::BAD_REQUEST, e.to_string()))?;
+
+    let client = AuthCodePkceSpotify::from_token(token);
+
+    let np = client
+        .current_playing(Default::default(), Some(vec![&AdditionalType::Track]))
         .await
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+        .map_err(|_e| (StatusCode::INTERNAL_SERVER_ERROR, "".to_string()))?;
+    Ok(Json(np.and_then(|np| {
+        np.item.and_then(|item| match item {
+            PlayableItem::Track(mut track) => {
+                if let Some(track_url) = track.external_urls.remove("spotify") {
+                    Some(NpResponse {
+                        track_name: track.name,
+                        track_url,
+                        album_name: track.album.name,
+                        artist_names: track
+                            .artists
+                            .into_iter()
+                            .map(|artist| artist.name)
+                            .collect(),
+                    })
+                } else {
+                    None
+                }
+            }
+            _ => None,
+        })
+    })))
+}
 
-    dbg!(&me);
+fn token2text(token: &Token) -> Result<String> {
+    let text = serde_json::to_string(&token)?;
+    Ok(URL_SAFE.encode(text.as_bytes()))
+}
 
-    Ok("")
+fn text2token(text: &str) -> Result<Token> {
+    let bytes = URL_SAFE.decode(text)?;
+    let text = String::from_utf8(bytes)?;
+    serde_json::from_str(&text).map_err(From::from)
 }

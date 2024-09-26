@@ -4,6 +4,16 @@
         <link rel="stylesheet" href="/styles.css" />
         <title>{% block title %}{{ title }} - My Site{% endblock %}</title>
         {% block head %}{% endblock %}
+        <script type="application/javascript">
+            addEventListener("DOMContentLoaded", () => {
+                const params = new URLSearchParams(document.location.search);
+                const token = params.get("token");
+                if (token != null) {
+                    sessionStorage.setItem("token", token);
+                    window.location.href = "/";
+                }
+            });
+        </script>
     </head>
     <body>
         <div id="content">

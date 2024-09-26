@@ -1,4 +1,19 @@
 {% extends "base.html" %} {% block title %}Index{% endblock %} {% block content
 %}
 <h1>Shuttle Todos - Home</h1>
+<a href="/spotify/auth">auth</a>
+<button
+    onclick="(function () {
+        const token = sessionStorage.getItem('token');
+        if (token == null) {
+            console.warn('token is none.');
+        } else {
+            fetch('/np?token=' + encodeURIComponent(token)).then((r) => {
+                console.log(r);
+            }).catch(console.error);
+        }
+})()"
+>
+    np
+</button>
 {% endblock %}

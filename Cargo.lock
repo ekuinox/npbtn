@@ -1128,8 +1128,10 @@ dependencies = [
  "askama",
  "askama_axum",
  "axum 0.7.6",
+ "base64 0.22.1",
  "rspotify",
  "serde",
+ "serde_json",
  "shuttle-axum",
  "shuttle-runtime",
 ]

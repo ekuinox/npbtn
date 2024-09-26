@@ -25,6 +25,7 @@ async fn main(#[shuttle_runtime::Secrets] secrets: SecretStore) -> shuttle_axum:
         .route("/", get(routes::get_index))
         .route("/spotify/auth", get(routes::get_spotify_auth))
         .route("/spotify/callback", get(routes::get_spotify_callback))
+        .route("/np", get(routes::get_np))
         .with_state(AppState {
             credentials,
             callback_uri: spotify_redirect_uri,
