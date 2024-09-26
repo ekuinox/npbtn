@@ -8,8 +8,11 @@
         if (token == null) {
             console.warn('token is none.');
         } else {
-            fetch('/np?token=' + encodeURIComponent(token)).then((r) => {
-                console.log(r);
+            fetch('/np?token=' + encodeURIComponent(token)).then(async (r) => {
+                const res = await r.json();
+                const tweetText = `NowPlaying ${res.artistNames.join(', ')} - ${res.trackName}`;
+                const url = `https://twitter.com/intent/tweet?text=${tweetText}&url=${res.trackUrl}`;
+                window.open(url, '_blank');
             }).catch(console.error);
         }
 })()"
