@@ -1,9 +1,5 @@
-# Axum + htmx
+# npbtn
 
-This is an example of how you can use Shuttle with Axum, Askama and htmx to create a frontend that's easily extendable and requires zero framework knowledge, while being able to easily inject variables from the backend into the frontend.
+リンク踏んだら nowplaying のテキストくっつけて Twitter に飛びたかった
 
-The app is a TODO list with a main page and an event stream page.
-
-## Usage
-
-Run the app and go to <http://localhost:8000> to add and remove TODOs from the list.
+一応 Windows の Vivaldi から動いてるのは見たけど、iOS の Safari で思ったように動かなくてだるくなってやめた
