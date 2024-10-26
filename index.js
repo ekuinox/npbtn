@@ -14,6 +14,12 @@ async function onLoaded() {
 
   try {
     const np = await getNp(accessToken);
+    if (np == null) {
+      const elm = document.createElement("p");
+      elm.innerText = "今なにも再生してないっぽい!";
+      document.getElementById("root").appendChild(elm);
+      return;
+    }
     const text = getNpText(np);
     redirectCompose(text, np.trackUrl);
   } catch (e) {

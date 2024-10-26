@@ -16,7 +16,7 @@ use rspotify::{
 use serde::{Deserialize, Serialize};
 use shuttle_runtime::tokio::sync::RwLock;
 
-use crate::templates::IndexTemplate;
+use crate::templates::{ComposeTemplate, IndexTemplate};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -70,6 +70,10 @@ pub async fn get_index_js() -> impl IntoResponse {
         header,
         include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/index.js")),
     )
+}
+
+pub async fn get_compose() -> impl IntoResponse {
+    ComposeTemplate
 }
 
 pub async fn get_spotify_auth(
