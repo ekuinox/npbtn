@@ -1,22 +1,11 @@
-{% extends "base.html" %} {% block title %}Index{% endblock %} {% block content
-%}
-<h1>Shuttle Todos - Home</h1>
-<a href="/spotify/auth">auth</a>
-<button
-    onclick="(function () {
-        const token = sessionStorage.getItem('token');
-        if (token == null) {
-            console.warn('token is none.');
-        } else {
-            fetch('/np?token=' + encodeURIComponent(token)).then(async (r) => {
-                const res = await r.json();
-                const tweetText = `NowPlaying ${res.artistNames.join(', ')} - ${res.trackName}`;
-                const url = `https://twitter.com/intent/tweet?text=${tweetText}&url=${res.trackUrl}`;
-                window.open(url, '_blank');
-            }).catch(console.error);
-        }
-})()"
->
-    np
-</button>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script type="module" src="./index.js"></script>
+    <link rel="stylesheet" href="/styles.css" />
+    <title>NPBTN</title>
+  </head>
+  <body>
+    <span>@remokusu</span>
+  </body>
+</html>

@@ -23,6 +23,7 @@ async fn main(#[shuttle_runtime::Secrets] secrets: SecretStore) -> shuttle_axum:
 
     let router = Router::new()
         .route("/", get(routes::get_index))
+        .route("/index.js", get(routes::get_index_js))
         .route("/spotify/auth", get(routes::get_spotify_auth))
         .route("/spotify/callback", get(routes::get_spotify_callback))
         .route("/np", get(routes::get_np))

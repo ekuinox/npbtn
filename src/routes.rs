@@ -3,7 +3,7 @@ use std::{collections::HashMap, sync::Arc};
 use anyhow::{Context as _, Result};
 use axum::{
     extract::{Query, State},
-    http::StatusCode,
+    http::{HeaderMap, StatusCode},
     response::{IntoResponse, Redirect},
     Json,
 };
@@ -61,6 +61,15 @@ impl AppState {
 
 pub async fn get_index() -> impl IntoResponse {
     IndexTemplate
+}
+
+pub async fn get_index_js() -> impl IntoResponse {
+    let mut header = HeaderMap::new();
+    header.insert("Content-Type", "application/javascript".parse().unwrap());
+    (
+        header,
+        include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/index.js")),
+    )
 }
 
 pub async fn get_spotify_auth(
